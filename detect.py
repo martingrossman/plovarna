@@ -1,6 +1,8 @@
 import cv2
 from ultralytics import YOLO
 import requests
+from datetime import datetime
+from utils import create_webcam_url
 
 
 def download_video(url, output_path):
@@ -14,7 +16,7 @@ def download_video(url, output_path):
         print(f"Failed to download video. Status code: {response.status_code}")
 
 
-def detect_objects(input_video, output_video, num_frames=20):
+def detect_objects(input_video, output_video, num_frames=30):
     model = YOLO("yolov8n.pt")  # Load YOLOv8 model
     cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
@@ -53,4 +55,8 @@ def detect_objects(input_video, output_video, num_frames=20):
 if __name__ == "__main__":
     input_video = "input.mp4"
     output_video = "output.mp4"  # Ensure it saves to static directory
-    detect_objects(input_video, output_video, num_frames=30)
+    specific_time = datetime.now()
+    specific_time_str = specific_time.strftime('%Y%m%d%H%M%S')
+    video_url = create_webcam_url(specific_time_str)
+    download_video(video_url, input_video)
+    detect_objects(input_video, output_video, num_frames=10)
