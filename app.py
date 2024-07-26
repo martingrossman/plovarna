@@ -25,7 +25,7 @@ def video():
         video_url = create_webcam_url(specific_time_str)
         download_video(video_url, input_video)
 
-        detect_objects(input_video, temp_output_video, final_output_video, num_frames=10)
+        detect_objects(input_video, temp_output_video, final_output_video, num_frames=2)
 
         # Set the flag to True after processing and saving the video
         video_saved = True
