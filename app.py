@@ -20,7 +20,7 @@ def video():
     download_video(video_url, input_video)
     detect_objects(input_video, output_video, num_frames=30)
 
-    return send_file('input.mp4', mimetype='video/mp4')
+    return send_file('output.mp4', mimetype='video/mp4')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
