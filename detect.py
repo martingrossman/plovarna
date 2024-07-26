@@ -1,9 +1,9 @@
 import cv2
-from ultralytics import YOLO
 import requests
+from ultralytics import YOLO
+import subprocess
 from datetime import datetime
 from utils import create_webcam_url
-
 
 def download_video(url, output_path):
     response = requests.get(url, stream=True)
@@ -15,8 +15,7 @@ def download_video(url, output_path):
     else:
         print(f"Failed to download video. Status code: {response.status_code}")
 
-
-def detect_objects(input_video, output_video, num_frames=30):
+def detect_objects(input_video, temp_output_video, final_output_video, num_frames=10):
     model = YOLO("yolov8n.pt")  # Load YOLOv8 model
     cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
@@ -27,16 +26,16 @@ def detect_objects(input_video, output_video, num_frames=30):
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
-    # Use H.264 codec for output video
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
-    out = cv2.VideoWriter(output_video, fourcc, fps, (width, height))
+    # Use 'mp4v' codec for temporary output video
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(temp_output_video, fourcc, fps, (width, height))
 
     frame_count = 0
     while cap.isOpened() and frame_count < num_frames:
         ret, frame = cap.read()
         if not ret:
             break
-        results = model(frame, verbose=False)
+        results = model(frame)
         for result in results[0].boxes:
             x1, y1, x2, y2 = result.xyxy[0]
             conf = result.conf[0]
@@ -49,14 +48,24 @@ def detect_objects(input_video, output_video, num_frames=30):
 
     cap.release()
     out.release()
-    print(f"Processed {frame_count} frames and saved to {output_video}")
+    print(f"Processed {frame_count} frames and saved to {temp_output_video}")
+
+    # Re-encode the video to H.264 using ffmpeg
+    ffmpeg_command = [
+        'ffmpeg', '-y', '-i', temp_output_video, '-c:v', 'libx264', '-crf', '23', '-preset', 'fast', final_output_video
+    ]
+    subprocess.run(ffmpeg_command)
+    print(f"Re-encoded video saved to {final_output_video}")
 
 
 if __name__ == "__main__":
     input_video = "input.mp4"
-    output_video = "output.mp4"  # Ensure it saves to static directory
+    temp_output_video = "temp_output.mp4"
+    final_output_video = "output.mp4"
+
     specific_time = datetime.now()
     specific_time_str = specific_time.strftime('%Y%m%d%H%M%S')
     video_url = create_webcam_url(specific_time_str)
     download_video(video_url, input_video)
-    detect_objects(input_video, output_video, num_frames=10)
+
+    detect_objects(input_video, temp_output_video, final_output_video, num_frames=10)

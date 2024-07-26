@@ -12,15 +12,20 @@ def index():
 
 @app.route('/video')
 def video():
+
     input_video = "input.mp4"
-    output_video = "output.mp4"  # Ensure it saves to static directory
+    temp_output_video = "temp_output.mp4"
+    final_output_video = "output.mp4"
+
     specific_time = datetime.now()
     specific_time_str = specific_time.strftime('%Y%m%d%H%M%S')
     video_url = create_webcam_url(specific_time_str)
     download_video(video_url, input_video)
-    detect_objects(input_video, output_video, num_frames=30)
 
-    return send_file('output.mp4', mimetype='video/mp4')
+    detect_objects(input_video, temp_output_video, final_output_video, num_frames=10)
+
+
+    return send_file(final_output_video, mimetype='video/mp4')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
