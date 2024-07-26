@@ -1,3 +1,3 @@
 .idea/
 *.mp4
-__pycache__/detect.cpython-38.pyc
+*.pyc
