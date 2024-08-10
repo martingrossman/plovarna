@@ -1,9 +1,12 @@
+import sys
+
 import cv2
 import requests
 from ultralytics import YOLO
 import subprocess
 from datetime import datetime
 from utils import create_webcam_url
+
 
 def download_video(url, output_path):
     response = requests.get(url, stream=True)
@@ -15,7 +18,8 @@ def download_video(url, output_path):
     else:
         print(f"Failed to download video. Status code: {response.status_code}")
 
-def detect_objects(input_video, temp_output_video, final_output_video, num_frames=10):
+
+def detect_objects(input_video, temp_output_video, final_output_video, num_frames, confidence_threshold, verb):
     model = YOLO("yolov8n.pt")  # Load YOLOv8 model
     cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
@@ -35,7 +39,8 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
         ret, frame = cap.read()
         if not ret:
             break
-        results = model(frame)
+        results = model(frame, conf=confidence_threshold, verbose=False)
+
         for result in results[0].boxes:
             x1, y1, x2, y2 = result.xyxy[0]
             conf = result.conf[0]
@@ -44,6 +49,10 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
             cv2.putText(frame, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         out.write(frame)
+        #print('Detecting {} frame from {}'.format(frame_count, num_frames))
+        if verb:
+            print(f"Processed {frame_count} frames and saved to {temp_output_video}")
+        sys.stdout.flush()
         frame_count += 1
 
     cap.release()
@@ -52,8 +61,10 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
 
     # Re-encode the video to H.264 using ffmpeg
     ffmpeg_command = [
-        'ffmpeg', '-y', '-i', temp_output_video, '-c:v', 'libx264', '-crf', '23', '-preset', 'fast', final_output_video
+        'ffmpeg', '-loglevel', 'error', '-y', '-i', temp_output_video, '-c:v', 'libx264', '-crf', '23', '-preset',
+        'fast', final_output_video
     ]
+
     subprocess.run(ffmpeg_command)
     print(f"Re-encoded video saved to {final_output_video}")
 
