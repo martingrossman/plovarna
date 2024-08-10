@@ -19,8 +19,8 @@ def download_video(url, output_path):
         print(f"Failed to download video. Status code: {response.status_code}")
 
 
-def detect_objects(input_video, temp_output_video, final_output_video, num_frames, confidence_threshold, verb):
-    model = YOLO("yolov8n.pt")  # Load YOLOv8 model
+def detect_objects(input_video, temp_output_video, final_output_video, num_frames, confidence_threshold, verb, model_name):
+    model = YOLO(model_name)  # Load YOLOv8 model
     cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
         print(f"Error: Could not open input video {input_video}")
@@ -35,6 +35,7 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
     out = cv2.VideoWriter(temp_output_video, fourcc, fps, (width, height))
 
     frame_count = 0
+    people_count = 0
     while cap.isOpened() and frame_count < num_frames:
         ret, frame = cap.read()
         if not ret:
@@ -46,6 +47,8 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
             conf = result.conf[0]
             cls = result.cls[0]
             label = f'{model.names[int(cls)]} {conf:.2f}'
+            if model.names[int(cls)] == "person":
+                people_count += 1
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
             cv2.putText(frame, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         out.write(frame)
@@ -67,6 +70,9 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
 
     subprocess.run(ffmpeg_command)
     print(f"Re-encoded video saved to {final_output_video}")
+    people_count = round(people_count/frame_count)
+    print(f"People avg per frame is {people_count}")
+    return people_count
 
 
 if __name__ == "__main__":

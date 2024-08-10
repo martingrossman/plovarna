@@ -7,9 +7,24 @@
 </head>
 <body>
     <h1>Swimming Pool Podoli</h1>
+    <p>Number of people detected: <span id="people-count">{{ people_count }}</span></p>
     <video width="640" height="480" controls>
         <source src="/video" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+
+    <script>
+        function updatePeopleCount() {
+            fetch('/get_people_count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('people-count').textContent = data.people_count;
+                })
+                .catch(error => console.error('Error fetching people count:', error));
+        }
+
+        // Update people count every 5 seconds
+        setInterval(updatePeopleCount, 5000);
+    </script>
 </body>
 </html>
