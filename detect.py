@@ -35,13 +35,13 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
     out = cv2.VideoWriter(temp_output_video, fourcc, fps, (width, height))
 
     frame_count = 0
-    people_count = 0
+    people_count_avg = 0
     while cap.isOpened() and frame_count < num_frames:
         ret, frame = cap.read()
         if not ret:
             break
         results = model(frame, conf=confidence_threshold, verbose=False)
-
+        people_count = 0
         for result in results[0].boxes:
             x1, y1, x2, y2 = result.xyxy[0]
             conf = result.conf[0]
@@ -51,12 +51,14 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
                 people_count += 1
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
             cv2.putText(frame, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(frame, 'People count: {}'.format(people_count), (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3)
         out.write(frame)
         #print('Detecting {} frame from {}'.format(frame_count, num_frames))
         if verb:
             print(f"Processed {frame_count} frames and saved to {temp_output_video}")
         sys.stdout.flush()
         frame_count += 1
+        people_count_avg = max(people_count, people_count_avg)
 
     cap.release()
     out.release()
@@ -70,9 +72,9 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
 
     subprocess.run(ffmpeg_command)
     print(f"Re-encoded video saved to {final_output_video}")
-    people_count = round(people_count/frame_count)
-    print(f"People avg per frame is {people_count}")
-    return people_count
+    # people_count_avg = round(people_count_avg/frame_count)
+    print(f"People avg per frame is {people_count_avg}")
+    return people_count_avg
 
 
 if __name__ == "__main__":

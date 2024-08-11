@@ -12,8 +12,8 @@ final_output_video = "output.mp4"  # Path where the final video will be saved
 processing_lock = threading.Lock()  # Lock to prevent concurrent processing
 people_count = 0  # Global variable to store the number of people detected
 
-NUM_FRAMES = 5
-CONFIDENCE = 0.25
+NUM_FRAMES = 300
+CONFIDENCE = 0.1
 VERBOSE = True
 UPDATE_WAIT_S = 1800
 MODEL_NAME = "best.pt"
