@@ -12,8 +12,8 @@ final_output_video = "output.mp4"  # Path where the final video will be saved
 processing_lock = threading.Lock()  # Lock to prevent concurrent processing
 people_count = 0  # Global variable to store the number of people detected
 
-NUM_FRAMES = 300
-CONFIDENCE = 0.1
+NUM_FRAMES = 10
+CONFIDENCE = 0.2
 VERBOSE = True
 UPDATE_WAIT_S = 1800
 MODEL_NAME = "best.pt"
@@ -30,11 +30,12 @@ def process_video():
 
         specific_time = datetime.now()
         specific_time_str = specific_time.strftime('%Y%m%d%H%M%S')
+
         video_url = create_webcam_url(specific_time_str)
         download_video(video_url, input_video)
 
         people_count = detect_objects(input_video, temp_output_video, final_output_video, num_frames=NUM_FRAMES,
-                       confidence_threshold=CONFIDENCE, verb=VERBOSE, model_name = MODEL_NAME)
+                       confidence_threshold=CONFIDENCE, verb=VERBOSE, model_name = MODEL_NAME,specific_time=specific_time)
 
         # Set the flag to True after processing and saving the video
         video_saved = True

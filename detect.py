@@ -19,7 +19,9 @@ def download_video(url, output_path):
         print(f"Failed to download video. Status code: {response.status_code}")
 
 
-def detect_objects(input_video, temp_output_video, final_output_video, num_frames, confidence_threshold, verb, model_name):
+def detect_objects(input_video, temp_output_video, final_output_video, num_frames, confidence_threshold,
+                   verb, model_name, specific_time):
+    time_str_video = specific_time.strftime('%H:%M %d/%m/%Y')
     model = YOLO(model_name)  # Load YOLOv8 model
     cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
@@ -51,7 +53,7 @@ def detect_objects(input_video, temp_output_video, final_output_video, num_frame
                 people_count += 1
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
             cv2.putText(frame, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        cv2.putText(frame, 'People count: {}'.format(people_count), (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3)
+        cv2.putText(frame, 'People count: {} on  {}'.format(people_count, time_str_video), (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
         out.write(frame)
         #print('Detecting {} frame from {}'.format(frame_count, num_frames))
         if verb:
