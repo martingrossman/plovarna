@@ -8,17 +8,18 @@ from utils import get_files_lst
 
 # Download video for data collection each hour in TIME_RNG
 MONTH = 8
-DAY = 16
-TIME_RNG = (8, 17)
-VIDEOSTREAM_DOWNLOAD_FOLDER = r'f:\plovarna\stream_videos_orig_2'
+DAY = 24
+TIME_RNG = (8, 16)
+VIDEOSTREAM_DOWNLOAD_FOLDER = r'f:\plovarna\stream_videos_orig\videos2'
 
 for hr in range(*TIME_RNG):
+    print(f'Downloading video hour {hr} of {TIME_RNG[1] - TIME_RNG[0]}')
     specific_time = datetime(2024, MONTH, DAY, hr, 0)
     specific_time_str = specific_time.strftime('%Y%m%d%H%M%S')
     download_webcam_stream_specific_time(specific_time_str, VIDEOSTREAM_DOWNLOAD_FOLDER)
 
 
-# Extract images from videos
+# Extract images from videos in separate folders
 videos_path_lst, videos_names_lst = get_files_lst(VIDEOSTREAM_DOWNLOAD_FOLDER)
 for video_path, video_name in zip(videos_path_lst, videos_names_lst):
     # create separate video dir and copy to it video
