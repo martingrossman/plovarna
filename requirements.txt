@@ -4,3 +4,6 @@ requests
 ultralytics
 ffmpeg
 beautifulsoup4
+supervision
+inference
+jupyterlab
