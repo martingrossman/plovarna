@@ -16,7 +16,6 @@ def create_webcam_url(specific_time_str):
     return stream_url
 
 
-
 def download_stream(url, output_path):
     # Function to download the video stream
     try:
@@ -30,8 +29,8 @@ def download_stream(url, output_path):
         print(f'Failed to download the stream: {e}')
 
 
-# Function to download web stream localy
 def download_webcam_stream_specific_time(specific_time_str, stream_downld_folder):
+    # Function to download web stream localy
     stream_url = create_webcam_url(specific_time_str)
     stream_file_name = 'webcam_stream_{}.mp4'.format(specific_time_str)
     output_file = os.path.join(stream_downld_folder, stream_file_name)
@@ -40,10 +39,8 @@ def download_webcam_stream_specific_time(specific_time_str, stream_downld_folder
 
 def extract_frames(video_path):
     # Extracts png frames from video and places in the same directory
-
     # Open the video file
     cap = cv2.VideoCapture(video_path)
-
     # Check if the video was opened successfully
     if not cap.isOpened():
         print("Error: Could not open video.")
@@ -60,7 +57,6 @@ def extract_frames(video_path):
             frame_count += 1
             # Check if the current frame is the target frame
             if frame_count <= total_frames:
-                # Convert the frame to RGB (OpenCV uses BGR by default)
                 # Save the frame as an image file
                 video_folder_path = os.path.dirname(video_path)
                 video_name = os.path.basename(video_path)
